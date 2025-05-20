@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Result Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    select, button {
+      padding: 10px;
+      margin: 0 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #45818e;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📊 ফলাফল ড্যাশবোর্ড</h2>
+
+<div class="controls">
+  <select id="batch">
+    <option value="">Batch</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+  </select>
+  <select id="course">
+    <option value="">Course</option>
+    <option value="T1">T1</option>
+    <option value="T2">T2</option>
+  </select>
+  <select id="location">
+    <option value="">Location</option>
+    <option value="Dhaka">Dhaka</option>
+    <option value="Chittagong">Chittagong</option>
+  </select>
+  <button onclick="loadResults()">🔍 দেখান</button>
+</div>
+
+<div id="tableArea"></div>
+
+<script>
+  const apiBase = 'https://script.google.com/macros/s/AKfycbz9YZDHxDZtD9lpF6TzEFobZbEjnIDuACc5yboG5zEZ26Tjj1JwGUcI0ziaaLmDX0v_4g/exec';
+
+  function loadResults() {
+    const batch = document.getElementById('batch').value;
+    const course = document.getElementById('course').value;
+    const location = document.getElementById('location').value;
+
+    if (!batch || !course || !location) {
+      alert('সবগুলো ফিল্ড পূরণ করুন');
+      return;
+    }
+
+    const url = `${apiBase}?batch=${batch}&course=${course}&location=${location}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length === 0) {
+          document.getElementById('tableArea').innerHTML = "<p style='color:red;'>ফলাফল পাওয়া যায়নি।</p>";
+          return;
+        }
+
+        let html = "<table><tr>";
+        const headers = Object.keys(data[0]);
+        headers.forEach(h => html += `<th>${h}</th>`);
+        html += "</tr>";
+
+        data.forEach(row => {
+          html += "<tr>";
+          headers.forEach(h => html += `<td>${row[h]}</td>`);
+          html += "</tr>";
+        });
+
+        html += "</table>";
+        document.getElementById('tableArea').innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById('tableArea').innerHTML = "<p style='color:red;'>ত্রুটি ঘটেছে।</p>";
+        console.error(err);
+      });
+  }
+</script>
+
+</body>
+</html>
